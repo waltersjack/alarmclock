@@ -1,0 +1,124 @@
+body {
+    padding-left: 20px;
+}
+.clockContainer {
+    height: 560px;
+    width: 382px;
+    position: relative;
+}
+.clockFront {
+    z-index: 1;
+    background: transparent url('/alarmclock/img/alarmclockface.png') no-repeat scroll -68px 10px;
+    height: 560px;
+    width: 382px;
+    padding-top: 190px;
+    padding-left: 62px;
+}
+
+.clockHammer {
+    z-index: -1;
+    background: transparent url('/alarmclock/img/alarmclockface.png') no-repeat scroll -3px -428px;
+    height: 80px;
+    width: 45px;
+    position: absolute;
+    top: 110px;
+    left: 168px;
+}
+
+.clockHammer.goRight {
+    -webkit-transform: rotate(30deg); /* Chrome, Safari, Opera */
+    -webkit-transform-origin: 70% 70%; /* Chrome, Safari, Opera */
+    transform: rotate(30deg);
+    transform-origin: 70% 70%;
+}
+.clockHammer.goLeft {
+    -webkit-transform: rotate(-30deg); /* Chrome, Safari, Opera */
+    -webkit-transform-origin: 0% 60%; /* Chrome, Safari, Opera */
+    transform: rotate(-30deg);
+    transform-origin: 30% 60%;
+}
+
+
+
+.tpContainer {
+    padding: 20px 0 0 0;
+    text-align: center;
+    width: 400px;
+}
+.tpToggle {
+    width: 150px;
+    height: 80px;
+    text-align: right;
+    display: inline-block;
+    vertical-align: top;
+    vertical-align: top;
+    padding-top: 30px;
+
+}
+.tpAlarmCont {
+    width: 150px;
+    height: 100px;
+    display: inline-block;
+    visibility: hidden;
+}
+.tpAlarmCont.doshow {
+    visibility: visible;
+}
+.tpCol {
+    width: 30px;
+    display: inline-block;
+}
+.tpContainer input {
+    width: 25px;
+    margin: 0;
+    text-align: center;
+    border-width: 2px;
+    border-style: inset;
+    border-radius: 4px;
+    padding: 1px 0px;
+}
+.tpContainer span {
+    border: 1px transparent solid;
+    width: 25px;
+    display: inline-block;
+    margin: 0;
+    padding: 8px 0;
+    outline: 0;
+    color: #333;
+    text-align: center;
+}
+
+.tpContainer span:hover {
+    text-decoration: none;
+    background-color: #eee;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border-color: #ddd;
+}
+
+
+.stopAlarm {
+    position: absolute;
+    left: 35px;
+    top: 100px;
+
+    padding: 0 40px 20px;
+    text-align: center;
+    background-color: #FF0000;
+    color: #FFFFFF;
+    font-weight: bold;
+    display: none;
+    -webkit-border-radius: 18px;
+    -moz-border-radius: 18px;
+    border-radius: 18px;
+    width: 350px;
+}
+
+.stopAlarm.showAlarmInfo {
+    display: block;
+}
+
+.stopAlarm button {
+    color: #000000;
+}

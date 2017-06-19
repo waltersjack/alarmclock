@@ -1,8 +1,276 @@
+<!DOCTYPE html>
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Alarm Clock</title>
+        <link href="/alarmclock/css/bootstrap.css" media="screen" rel="stylesheet" type="text/css" />
+        <link href="/alarmclock/css/style.css" media="screen" rel="stylesheet" type="text/css" />
+        <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet" />
+        <script type="text/javascript" src="/alarmclock/js/jquery-3.2.1.min.js"></script>
+        <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     </head>
     <body>
         <h1>Alarm Clock</h1>
+
+        <div class="tpContainer">
+            <div class="tpToggle">
+                <label>Set Alarm</label>
+                <input id="tglAlarm" type="checkbox" data-toggle="toggle">
+            </div>
+            <div class="tpAlarmCont" id="tpAlarmCtrl">
+                <div class="tpCol" id="TPHr">
+                    <div>
+                        <span class="glyphicon glyphicon-chevron-up"></span>
+                    </div>
+                    <div>
+                        <input readonly="readonly" type="text" maxlength="2" />
+                    </div>
+                    <div>
+                        <span class="glyphicon glyphicon-chevron-down"></span>
+                    </div>
+                </div>
+                <div class="tpCol" id="TPMin">
+                    <div>
+                        <span class="glyphicon glyphicon-chevron-up"></span>
+                    </div>
+                    <div>
+                        <input readonly="readonly" type="text" maxlength="2" />
+                    </div>
+                    <div>
+                        <span class="glyphicon glyphicon-chevron-down"></span>
+                    </div>
+                </div>
+                <div class="tpCol" id="TPAPMeri">
+                    <div>
+                        <span class="glyphicon glyphicon-chevron-up"></span>
+                    </div>
+                    <div>
+                        <input readonly="readonly" type="text" maxlength="2" />
+                    </div>
+                    <div>
+                        <span class="glyphicon glyphicon-chevron-down"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clockContainer">
+            <div class="clockFront">
+                <canvas id="canvas" width="260" height="260" style="background-color:transparent">
+                </canvas>
+            </div>
+            <div id="clkHmr" class="clockHammer"></div>
+        </div>
+
+        <div id="AlarmStop" class="stopAlarm">
+            <h2>Stop Alarm</h2>
+            <button>Stop</button>
+        </div>
+
+        <script>
+            var canvas = document.getElementById("canvas"),
+                ctx = canvas.getContext("2d"),
+                radius = (canvas.height / 2),
+                alarm = { hr: 6, min: 30 },
+                alarmActive = false,
+                alarmSounding = false,
+                hammerInt = 0,
+                hammerTO;
+
+            ctx.translate(radius, radius);
+            radius = radius * 0.90;
+            initAlarm();
+            drawClock();
+            setInterval(drawClock, 1000);
+
+            function initAlarm() {
+                $("#tglAlarm").prop({checked:false});
+
+                setAlarmInputs();
+
+                $('#TPHr, #TPMin, #TPAPMeri')
+                    .find('span.glyphicon-chevron-up').on('click',incrementAlarm).end()
+                    .find('span.glyphicon-chevron-down').on('click',decrementAlarm);
+
+
+                $("#tglAlarm").prop({checked:alarmActive}).on('change',function(event){
+                    alarmActive = $(this).is(':checked');
+                    $('#tpAlarmCtrl').toggleClass('doshow',$(this).is(':checked'));
+                });
+
+                $('#AlarmStop button').on('click',function(){
+                    $('#AlarmStop').removeClass('showAlarmInfo');
+                    alarmSounding = false;
+                });
+
+            }
+
+
+            function hammerTime() {
+                if(hammerTO) { clearTimeout(hammerTO); }
+
+                $('#clkHmr').removeClass('goRight goLeft');
+                if(alarmSounding) {
+                    if(hammerInt === 1) {
+                        $('#clkHmr').addClass('goRight');
+                    }
+                    if(hammerInt === 3) {
+                        $('#clkHmr').addClass('goLeft');
+                    }
+                    hammerInt++;
+
+                    if(hammerInt == 4) { hammerInt = 0; }
+
+                    hammerTO = setTimeout(hammerTime,100);
+                }
+                else { hammerInt = 0; }
+            }
+
+            function checkHr() {
+                if(alarm.hr < 0) {
+                    alarm.hr = 24 + alarm.hr;
+                }
+                else if(alarm.hr > 23) {
+                    alarm.hr = alarm.hr - 24;
+                }
+            }
+
+            function incrementAlarm(event) {
+                var val;
+                switch ($(this).parent().parent().attr('id')) {
+                    case 'TPHr':
+                        alarm.hr++;
+                        checkHr();
+                        break;
+                    case 'TPMin':
+                        alarm.min++;
+                        if(alarm.min > 59) {
+                            alarm.min = 0;
+                            alarm.hr++;
+                            checkHr();
+                        }
+                        break;
+                    case 'TPAPMeri':
+                        val = $('#TPAPMeri input').val();
+                        val = val == 'AM' ? 'PM' : 'AM';
+
+                        alarm.hr += (val == 'AM' ? -12 : 12);
+                        checkHr();
+                        break;
+                }
+                setAlarmInputs();
+                drawClock();
+            }
+
+            function decrementAlarm(event) {
+                var val;
+                switch ($(this).parent().parent().attr('id')) {
+                    case 'TPHr':
+                        alarm.hr--;
+                        checkHr();
+                        break;
+                    case 'TPMin':
+                        alarm.min--;
+                        if(alarm.min < 0) {
+                            alarm.min = 59;
+                            alarm.hr--;
+                            checkHr();
+                        }
+                        break;
+                    case 'TPAPMeri':
+                        val = $('#TPAPMeri input').val();
+                        val = val == 'AM' ? 'PM' : 'AM';
+
+                        alarm.hr += (val == 'AM' ? -12 : 12);
+                        checkHr();
+                        break;
+                }
+                setAlarmInputs();
+                drawClock();
+            }
+
+            function setAlarmInputs() {
+                $('#TPHr input').val((alarm.hr>12?(alarm.hr-12):(!alarm.hr?12:alarm.hr)));
+                $('#TPMin input').val((alarm.min<10?'0':'')+alarm.min);
+                $('#TPAPMeri input').val((alarm.hr > 11 ? 'PM' : 'AM'));
+            }
+
+            function drawClock() {
+                ctx.clearRect(-canvas.width, -canvas.height, canvas.width*2, canvas.height*2);
+
+                drawAlarm();
+
+                drawTime();
+            }
+
+            function drawAlarm() {
+                var now = new Date(),
+                    hour,
+                    minute,
+                    alarmhand;
+
+                now.setHours(alarm.hr,alarm.min,0,0);
+
+                hour = now.getHours();
+
+                minute = now.getMinutes();
+
+                alarmhand = ((hour%12)*Math.PI/6) + (minute*Math.PI/(6*60));
+
+                drawHand(alarmhand, radius*0.7, radius*0.05, true);
+            }
+
+            function drawTime() {
+                var now = new Date(),
+                    hour = now.getHours(),
+                    minute = now.getMinutes(),
+                    second = now.getSeconds();
+
+                if(!second && alarmActive) {
+                    checkAlarm(hour,minute);
+                }
+
+                hour=hour%12;
+                hour=(hour*Math.PI/6)+
+                    (minute*Math.PI/(6*60))+
+                    (second*Math.PI/(360*60));
+                drawHand(hour, radius*0.5, radius*0.07);
+
+                minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
+                drawHand(minute, radius*0.8, radius*0.07);
+
+                second=(second*Math.PI/30);
+                drawHand(second, radius*0.9, radius*0.02);
+            }
+
+            function drawHand(pos, length, width, isAlarm) {
+                ctx.beginPath();
+                ctx.strokeStyle = (isAlarm ? "#FF0000" : "#000000");
+                ctx.lineWidth = width;
+                ctx.lineCap = "round";
+                ctx.moveTo(0,0);
+                ctx.rotate(pos);
+                ctx.lineTo(0, -length);
+                ctx.stroke();
+                ctx.rotate(-pos);
+            }
+
+            function checkAlarm(hour, minute) {
+                console.log(alarm);
+                console.log(hour);
+                console.log(minute);
+                console.log('________________________________________');
+
+                if(hour == alarm.hr && minute == alarm.min) {
+                    console.log('ALARM!!!!!!!!!!');
+
+                    alarmSounding = true;
+
+
+                    $('#AlarmStop').addClass('showAlarmInfo');
+
+                    hammerTime();
+                }
+            }
+        </script>
     </body>
 </html>
